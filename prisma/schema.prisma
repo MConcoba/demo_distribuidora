@@ -1,0 +1,115 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/sistema_distribuidora/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EMPLEADO
+}
+
+enum MovementType {
+  ENTRADA
+  SALIDA
+  AJUSTE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      UserRole @default(EMPLEADO)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sales     Sale[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  products Product[]
+
+  @@index([name])
+}
+
+model Product {
+  id          String              @id @default(cuid())
+  sku         String              @unique
+  name        String
+  description String?
+  price       Float
+  stock       Int                 @default(0)
+  minStock    Int                 @default(0)
+  categoryId  String
+  category    Category            @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  saleItems   SaleItem[]
+  movements   InventoryMovement[]
+
+  @@index([categoryId])
+  @@index([sku])
+  @@index([stock])
+}
+
+model Sale {
+  id        String     @id @default(cuid())
+  saleDate  DateTime   @default(now())
+  total     Float
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  items     SaleItem[]
+  createdAt DateTime   @default(now())
+
+  @@index([userId])
+  @@index([saleDate])
+}
+
+model SaleItem {
+  id        String  @id @default(cuid())
+  saleId    String
+  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  subtotal  Float
+
+  @@index([saleId])
+  @@index([productId])
+}
+
+model InventoryMovement {
+  id            String       @id @default(cuid())
+  productId     String
+  product       Product      @relation(fields: [productId], references: [id])
+  type          MovementType
+  quantity      Int
+  previousStock Int
+  newStock      Int
+  reason        String?
+  createdAt     DateTime     @default(now())
+  createdBy     String?
+
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model AppSettings {
+  id             String   @id @default("default")
+  primaryColor   String   @default("#2563eb")
+  secondaryColor String   @default("#7c3aed")
+  accentColor    String   @default("#f59e0b")
+  updatedAt      DateTime @updatedAt
+}
