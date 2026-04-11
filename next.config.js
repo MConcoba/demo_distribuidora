@@ -8,8 +8,8 @@ const nextConfig = {
     outputFileTracingRoot: path.join(__dirname, '../'),
     //åruntime: 'nodejs',
   },
-  webpack: (config) => {
-    config.externals.push({ ws: 'commonjs ws' });
+  webpack: (webpackConfig) => {
+    config.output.globalObject = `(typeof self !== 'undefined' ? self : this)`;
     return config;
   },
   eslint: {
