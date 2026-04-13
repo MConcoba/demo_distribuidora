@@ -1,0 +1,26 @@
+# Node modules locales
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Archivos de Git
+.git
+.gitignore
+
+# Archivos locales de VSCode u otros IDEs
+.vscode
+.idea
+
+# Archivos de build locales
+dist
+.next
+out
+
+# Archivos temporales
+*.log
+*.tmp
+.DS_Store
+
+# Imágenes o assets grandes que no se necesitan
+/uploads
+/tokens
